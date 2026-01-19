@@ -1,5 +1,6 @@
-@startuml updatePost
-actor Client 
+@startuml update-post
+actor Client
+
 participant PostController
 participant PostService
 participant PostRepository

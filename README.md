@@ -41,10 +41,11 @@ backend-practical-service
 │  │  ├─ erd.md               # ERD 설명
 │  │  └─ erd.png              # ERD 이미지
 │  └─ sequence/
+│     ├─ create-post.png     
 │     ├─ create-post.puml     # 게시글 생성 시퀀스 다이어그램
-│     ├─ create-post.png
-│     ├─ update-post.puml     # 게시글 수정 시퀀스 다이어그램
-│     └─ update-post.png
+│     ├─ diagram.md           # 시퀀스 다이어그램 설명
+│     ├─ update-post.png     
+│     └─ update-post.puml     # 게시글 수정 시퀀스 다이어그램
 ├─ src/
 │  └─ main/java/com/company/techblog
 │     ├─ controller           # REST API 컨트롤러
