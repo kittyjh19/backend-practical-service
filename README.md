@@ -1,90 +1,71 @@
-# Tech Blog Service
+# backend-practical-service
 
-기술 블로그 서비스의 백엔드 API 서버입니다.
+본 프로젝트는 **기존 운영 중인 Spring Boot 기반 REST API 서비스 코드베이스를 기반으로**,  
+신입 백엔드 개발자 관점에서 **서비스 구조를 분석하고 문서화하는 실무 경험 프로젝트**입니다.
 
-## 기술 스택
+신규 서비스를 개발하는 것이 아니라,  
+**기존 코드에 합류한 상황을 가정하여 환경 설정부터 코드 구조 파악,  
+REST API 스펙 정리, ERD 및 시퀀스 다이어그램 작성까지의 과정을 단계적으로 진행하고 있습니다.**
 
-* Java 17
-* Spring Boot 3.2.0
-* Spring Data JPA
-* MySQL 8
-* Gradle
+> ⚠️ 본 프로젝트는 현재 **서비스 분석 및 환경 설정 단계 진행 중**이며,  
+> 이후 유지보수, 기능 확장, 배포 단계로 순차적으로 확장할 예정입니다.
 
-## 시작하기
+---
 
-### 필수 요구사항
+## 📌 프로젝트 개요
+- 기존 백엔드 서비스 코드 클론 및 로컬 개발 환경 구성
+- REST API 구조 및 도메인 흐름 분석
+- Entity 기반 테이블 구조 분석 및 ERD 문서화
+- 주요 API 요청 흐름에 대한 시퀀스 다이어그램 작성
+- 신입 개발자 관점에서의 코드 구조 이해 및 개선 포인트 정리
 
-* JDK 17
-* MySQL 8.0
-* Gradle 7.x
+본 프로젝트는 **기존 백엔드 서비스를 빠르게 이해하고 문서화하는 능력**에 초점을 맞추고 있습니다.
 
-### 환경 구성
+---
 
-1. MySQL 데이터베이스 생성
-```sql
-CREATE DATABASE techblog;
-CREATE USER 'user'@'localhost' IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON techblog.* TO 'user'@'localhost';
-FLUSH PRIVILEGES;
-```
+## 🛠 기술 스택
+- Java 17
+- Spring Boot 3.2.x
+- Spring Data JPA
+- MySQL 8.0
+- Gradle (Wrapper)
+- Spring Boot Actuator
 
-2. 프로젝트 클론
-```bash
-git clone https://github.com/PrimeCareer/tech-blog.git
-cd tech-blog
-```
+---
 
-3. 애플리케이션 실행
-```bash
-./gradlew bootRun
-```
+## 📂 프로젝트 구조 (분석 대상)
 
-## API 명세
+backend-practical-service  
+├─ docs/  
+│   ├─ api-spec.md              # REST API 명세  
+│   ├─ erd.md                   # 테이블 구조 및 ERD  
+│   ├─ sequence-diagram.md      # API 시퀀스 다이어그램 (PlantUML)  
+│   └─ analysis-notes.md        # 코드 분석 및 개선 포인트 정리  
+├─ src/  
+│   └─ main/java  
+│       ├─ controller  
+│       ├─ service  
+│       ├─ repository  
+│       └─ entity  
+└─ README.md  
 
-### 게시글 API
+---
 
-| Method | URI | Description |
-|--------|-----|-------------|
-| POST | /api/posts | 게시글 작성 |
-| GET | /api/posts | 게시글 목록 조회 |
-| GET | /api/posts/{id} | 게시글 상세 조회 |
-| PUT | /api/posts/{id} | 게시글 수정 |
-| DELETE | /api/posts/{id} | 게시글 삭제 |
+## 🧩 진행한 작업 (진행 중)
+- 기존 코드 기반 REST API 엔드포인트 구조 파악
+- Controller → Service → Repository 호출 흐름 분석
+- JPA Entity 연관관계 분석 및 테이블 구조 정리
+- 주요 API에 대한 시퀀스 다이어그램 작성
+- 유지보수 관점에서 코드 가독성 및 구조 개선 포인트 정리
 
-## 프로젝트 구조
+---
 
-```
-src/main/java/com/company/techblog
-├── TechBlogApplication.java
-├── controller/
-├── domain/
-├── repository/
-├── service/
-└── dto/
-```
+## 🧠 배운 점
 
-## 개발 가이드
 
-1. 브랜치 관리
-    * main: 제품 출시 브랜치
-    * develop: 개발 브랜치
-    * feature/*: 기능 개발 브랜치
+---
 
-2. 커밋 메시지 컨벤션
-    * feat: 새로운 기능 추가
-    * fix: 버그 수정
-    * docs: 문서 수정
-    * style: 코드 포맷팅
-    * refactor: 코드 리팩토링
-    * test: 테스트 코드
-    * chore: 빌드 업무 수정
-
-## 테스트
-
-```bash
-./gradlew test
-```
-
-## 라이센스
-
-This project is licensed under the MIT License - see the LICENSE file for details
+## 📎 참고 사항
+- 본 프로젝트는 **실무 경험 학습을 목적으로 진행 중**이며,
+- 서비스 코드의 원형은 학습용으로 제공된 기존 코드베이스를 기반으로 합니다.
+- 분석, 문서화 및 개선 포인트 정리는 개인적으로 수행하고 있습니다.
