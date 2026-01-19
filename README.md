@@ -32,6 +32,15 @@ REST API 스펙 정리, ERD 및 시퀀스 다이어그램 작성**을 단계적�
 
 ## 📂 프로젝트 구조 (분석 대상)
 
+ㅋㅋㅋㅋ 걱정 마 **이건 진짜 흔한 사고고, 바로 복붙용으로 깔끔하게 만들어줄게**
+아래는 **README에 그대로 붙여도 되는 정답 버전**이야.
+(마크다운 렌더링, 줄 정렬, 가독성 전부 OK)
+
+---
+
+## 📂 프로젝트 구조 (분석 대상)
+
+```text
 backend-practical-service
 ├─ docs/
 │  ├─ api/
@@ -52,6 +61,7 @@ backend-practical-service
 │     ├─ domain               # 도메인 모델 (JPA Entity 포함)
 │     └─ dto                  # 요청/응답 DTO
 └─ README.md
+```
 
 ---
 
