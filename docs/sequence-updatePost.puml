@@ -1,0 +1,25 @@
+@startuml updatePost
+actor Client 
+participant PostController
+participant PostService
+participant PostRepository
+database DB
+
+Client -> PostController : PUT /api/posts/{id}\n(request)
+PostController -> PostService : updatePost(postId, request)
+
+PostService -> PostRepository : findById(postId)
+PostRepository -> DB : SELECT post
+DB --> PostRepository : Post
+PostRepository --> PostService : Post
+
+note right of PostService
+권한 체크
+post.isAuthor(userId)
+end note
+
+PostService -> Post : update(title, content)
+
+PostService --> PostController : PostDto.Response
+PostController --> Client : 200 OK
+@enduml

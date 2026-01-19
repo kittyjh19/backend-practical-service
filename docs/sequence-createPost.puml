@@ -1,0 +1,25 @@
+@startuml createPost
+actor Client
+
+participant PostController
+participant PostService
+participant UserRepository
+participant PostRepository
+database DB
+
+Client -> PostController : POST /api/posts\n(request)
+PostController -> PostService : createPost(request)
+
+PostService -> UserRepository : findById(userId)
+UserRepository -> DB : SELECT user
+DB --> UserRepository : User
+UserRepository --> PostService : User
+
+PostService -> PostRepository : save(Post)
+PostRepository -> DB : INSERT post
+DB --> PostRepository : Post
+PostRepository --> PostService : Post
+
+PostService --> PostController : PostDto.Response
+PostController --> Client : 200 OK (response)
+@enduml
