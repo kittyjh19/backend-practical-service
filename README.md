@@ -32,26 +32,26 @@ REST API 스펙 정리, ERD 및 시퀀스 다이어그램 작성**을 단계적�
 
 ## 📂 프로젝트 구조 (분석 대상)
 
-backend-practical-service  
+backend-practical-service
 ├─ docs/
-│   ├─ api/
-│   │   └─ api-spec.md          # REST API 명세
-│   ├─ erd/
-│   │   ├─ erd.md               # ERD 설명
-│   │   └─ erd.png              # ERD 이미지
-│   └─ sequence/
-│       ├─ create-post.puml     # 게시글 생성 시퀀스
-│       ├─ create-post.png
-│       ├─ update-post.puml     # 게시글 수정 시퀀스
-│       └─ update-post.png  
-├─ src/  
-│   └─ main/java/com/company/techblog  
-│       ├─ controller           # REST API 컨트롤러  
-│       ├─ service              # 비즈니스 로직  
-│       ├─ repository           # JPA Repository  
-│       ├─ domain               # 도메인 모델 (JPA Entity 포함)  
-│       └─ dto                  # 요청/응답 DTO  
-└─ README.md  
+│  ├─ api/
+│  │  └─ api-spec.md          # REST API 명세
+│  ├─ erd/
+│  │  ├─ erd.md               # ERD 설명
+│  │  └─ erd.png              # ERD 이미지
+│  └─ sequence/
+│     ├─ create-post.puml     # 게시글 생성 시퀀스 다이어그램
+│     ├─ create-post.png
+│     ├─ update-post.puml     # 게시글 수정 시퀀스 다이어그램
+│     └─ update-post.png
+├─ src/
+│  └─ main/java/com/company/techblog
+│     ├─ controller           # REST API 컨트롤러
+│     ├─ service              # 비즈니스 로직
+│     ├─ repository           # JPA Repository
+│     ├─ domain               # 도메인 모델 (JPA Entity 포함)
+│     └─ dto                  # 요청/응답 DTO
+└─ README.md
 
 ---
 
