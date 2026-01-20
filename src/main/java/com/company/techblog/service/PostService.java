@@ -25,6 +25,10 @@ public class PostService {
         User user = userRepository.findById(request.getUserId())
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+        if (user.isResigned()) {
+            throw new IllegalStateException("퇴사한 사용자는 게시글을 작성할 수 없습니다.");
+        }
+
         Post post = Post.builder()
             .author(user)
             .title(request.getTitle())
@@ -49,6 +53,13 @@ public class PostService {
 
     @Transactional
     public PostDto.Response updatePost(Long postId, PostDto.Request request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (user.isResigned()) {
+            throw new IllegalStateException("퇴사한 사용자는 게시글을 수정할 수 없습니다.");
+        }
+
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
@@ -62,6 +73,13 @@ public class PostService {
 
     @Transactional
     public void deletePost(Long userId, Long postId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (user.isResigned()) {
+            throw new IllegalStateException("퇴사한 사용자는 게시글을 삭제할 수 없습니다.");
+        }
+
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
