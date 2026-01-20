@@ -46,7 +46,7 @@ public class PostService {
     }
 
     public List<Response> getAllPosts() {
-        return postRepository.findAll().stream()
+        return postRepository.findAllWithAuthor().stream()
             .map(PostDto.Response::from)
             .collect(Collectors.toList());
     }
