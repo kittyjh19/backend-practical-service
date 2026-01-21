@@ -132,5 +132,14 @@ public class PostService {
                 .liked(liked)
                 .build();
     }
+
+    // 인기글 상위 10개 조회
+    public List<PostDto.Response> getPopularPosts() {
+        return postRepository.findTop10ByOrderByLikeCountDescCreatedAtDesc()
+                .stream()
+                .map(PostDto.Response::from)
+                .toList();
+    }
+
 }
 
