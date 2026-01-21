@@ -1,0 +1,14 @@
+@startuml popular-posts
+
+actor Client
+participant PostController
+participant PostService
+participant PostRepository
+
+Client -> PostController: GET /api/posts?sort=popular&limit=10
+PostController -> PostService: getPosts(sort=popular, limit=10)
+PostService -> PostRepository: findTopByOrderByLikeCountDesc(limit)
+PostRepository --> PostService: List<Post>
+PostService --> PostController: PostListResponse
+
+@enduml

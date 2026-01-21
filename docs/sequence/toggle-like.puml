@@ -1,0 +1,35 @@
+@startuml toggle-like
+
+actor Client
+
+participant PostController
+participant PostService
+participant PostRepository
+participant PostLikeRepository
+
+Client -> PostController: POST /api/posts/{postId}/likes
+PostController -> PostService: toggleLike(postId, userId)
+
+PostService -> PostRepository: findById(postId)
+PostRepository --> PostService: Post
+
+alt 작성자가 본인인 경우
+    PostService --> PostController: throw InvalidLikeException
+    PostController --> Client: 400 Bad Request
+else
+    PostService -> PostLikeRepository: findByUserIdAndPostId(userId, postId)
+
+    alt 이미 좋아요 존재
+        PostLikeRepository --> PostService: PostLike
+        PostService -> PostLikeRepository: delete(PostLike)
+        PostService -> PostRepository: decrementLikeCount
+        PostService --> PostController: liked=false, likeCount
+    else 좋아요 없음
+        PostLikeRepository --> PostService: null
+        PostService -> PostLikeRepository: save(PostLike)
+        PostService -> PostRepository: incrementLikeCount
+        PostService --> PostController: liked=true, likeCount
+    end
+end
+
+@enduml
