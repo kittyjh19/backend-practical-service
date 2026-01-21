@@ -14,4 +14,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         join fetch p.author
     """)
     List<Post> findAllWithAuthor();
+
+    List<Post> findTop10ByOrderByLikeCountDescCreatedAtDesc();
 }
