@@ -1,5 +1,7 @@
 package com.company.techblog.controller;
 
+import com.company.techblog.dto.LikeRequest;
+import com.company.techblog.dto.LikeResponse;
 import com.company.techblog.dto.PostDto;
 import com.company.techblog.service.PostService;
 import jakarta.validation.Valid;
@@ -42,5 +44,10 @@ public class PostController {
     public ResponseEntity<Void> deletePost(@PathVariable Long id, @RequestParam Long userId) {
         postService.deletePost(id, userId);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{postId}/likes")
+    public ResponseEntity<LikeResponse> toggleLike(@PathVariable Long postId, @Valid @RequestBody LikeRequest request) {
+        return ResponseEntity.ok(postService.toggleLike(postId, request.getUserId()));
     }
 }
