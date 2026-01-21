@@ -190,7 +190,6 @@ GET
     "title": "인기 게시글",
     "content": "게시글 내용",
     "likeCount": 42,
-    "likedByMe": false,
     "createdAt": "2024-01-01T12:00:00",
     "updatedAt": "2024-01-01T12:00:00"
   }
