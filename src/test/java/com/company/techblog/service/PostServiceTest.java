@@ -63,4 +63,125 @@ public class PostServiceTest {
         assertThat(response.getId()).isNotNull();
         assertThat(response.getAuthorId()).isEqualTo(user.getId());
     }
+
+    @Test
+    void 좋아요는_토글_형식으로_동작한다() {
+
+        // given
+        User author = userRepository.save(
+                User.builder()
+                        .email("author@test.com")
+                        .name("작성자")
+                        .build()
+        );
+
+        User liker = userRepository.save(
+                User.builder()
+                        .email("liker@test.com")
+                        .name("좋아요유저")
+                        .build()
+        );
+
+        PostDto.Request postRequest =
+                new PostDto.Request(author.getId(), "제목", "내용");
+
+        Long postId = postService.createPost(postRequest).getId();
+
+        // when - 좋아요 추가
+        var likeResponse1 = postService.toggleLike(postId, liker.getId());
+
+        // then
+        assertThat(likeResponse1.isLiked()).isTrue();
+        assertThat(likeResponse1.getLikeCount()).isEqualTo(1);
+
+        // when - 다시 좋아요 (취소)
+        var likeResponse2 = postService.toggleLike(postId, liker.getId());
+
+        // then
+        assertThat(likeResponse2.isLiked()).isFalse();
+        assertThat(likeResponse2.getLikeCount()).isEqualTo(0);
+    }
+
+    @Test
+    void 본인_게시글에는_좋아요를_누를_수_없다() {
+
+        // given
+        User author = userRepository.save(
+                User.builder()
+                        .email("self@test.com")
+                        .name("본인")
+                        .build()
+        );
+
+        PostDto.Request postRequest =
+                new PostDto.Request(author.getId(), "제목", "내용");
+
+        Long postId = postService.createPost(postRequest).getId();
+
+        // when & then
+        assertThatThrownBy(() -> postService.toggleLike(postId, author.getId()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("본인 게시글에는 좋아요를 누를 수 없습니다.");
+    }
+
+    @Test
+    void 인기게시글은_좋아요_개수_내림차순으로_정렬된다() {
+
+        // given
+        User author = userRepository.save(
+                User.builder()
+                        .email("author@test.com")
+                        .name("작성자")
+                        .build()
+        );
+
+        User liker1 = userRepository.save(
+                User.builder()
+                        .email("liker1@test.com")
+                        .name("좋아요1")
+                        .build()
+        );
+
+        User liker2 = userRepository.save(
+                User.builder()
+                        .email("liker2@test.com")
+                        .name("좋아요2")
+                        .build()
+        );
+
+        Long postId1 = postService.createPost(
+                new PostDto.Request(author.getId(), "게시글1", "내용1")
+        ).getId();
+
+        Long postId2 = postService.createPost(
+                new PostDto.Request(author.getId(), "게시글2", "내용2")
+        ).getId();
+
+        Long postId3 = postService.createPost(
+                new PostDto.Request(author.getId(), "게시글3", "내용3")
+        ).getId();
+
+        postService.toggleLike(postId1, liker1.getId());
+        postService.toggleLike(postId1, liker2.getId());
+        postService.toggleLike(postId2, liker1.getId());
+
+        // when
+        var popularPosts = postService.getPopularPosts();
+
+        // then - 내가 만든 게시글만 필터링
+        var myPosts = popularPosts.stream()
+                .filter(p -> p.getId().equals(postId1)
+                        || p.getId().equals(postId2)
+                        || p.getId().equals(postId3))
+                .toList();
+
+        assertThat(myPosts).hasSize(3);
+
+        assertThat(myPosts.get(0).getId()).isEqualTo(postId1); // 좋아요 2
+        assertThat(myPosts.get(1).getId()).isEqualTo(postId2); // 좋아요 1
+        assertThat(myPosts.get(2).getId()).isEqualTo(postId3); // 좋아요 0
+    }
+
+
+
 }
