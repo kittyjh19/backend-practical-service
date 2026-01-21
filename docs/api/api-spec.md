@@ -132,13 +132,10 @@ GET
   "title": "게시글 제목",
   "content": "게시글 내용",
   "likeCount": 12,
-  "likedByMe": true,
   "createdAt": "2024-01-01T12:00:00",
   "updatedAt": "2024-01-01T12:00:00"
 }
 ```
-
-> ※ `likedByMe`는 요청 사용자를 기준으로 계산되는 값입니다.
 
 ---
 

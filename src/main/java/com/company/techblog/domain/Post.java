@@ -27,6 +27,10 @@ public class Post {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    // 좋아요 컬럼 추가
+    @Column(name = "like_count", nullable = false)
+    private Long likeCount = 0L;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
@@ -47,11 +51,22 @@ public class Post {
         this.updatedAt = LocalDateTime.now();
     }
 
+
     public boolean isAuthor(Long userId) {
         return this.author.getId().equals(userId);
     }
 
     public boolean isAuthorResigned() {
         return this.author.isResigned();
+    }
+
+    // 좋아요 증가
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
+
+    // 좋아요 감소
+    public void decreaseLikeCount() {
+        this.likeCount = Math.max(0, this.likeCount - 1);
     }
 }

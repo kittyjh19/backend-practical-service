@@ -35,6 +35,7 @@ public class PostDto {
         private final String author;
         private final String title;
         private final String content;
+        private final Long likeCount;
         private final LocalDateTime createdAt;
         private final LocalDateTime updatedAt;
 
@@ -45,6 +46,7 @@ public class PostDto {
                 .author(post.getAuthor().getName())
                 .title(post.getTitle())
                 .content(post.getContent())
+                .likeCount(post.getLikeCount())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();
