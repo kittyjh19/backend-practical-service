@@ -8,23 +8,6 @@ pipeline {
             }
         }
 
-        stage('Prepare Env') {
-            steps {
-                sh '''
-                cat <<EOF > .env
-MYSQL_ROOT_PASSWORD=password
-MYSQL_USER=user
-MYSQL_PASSWORD=password
-MYSQL_DATABASE=techblog
-
-SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/techblog?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
-SPRING_DATASOURCE_USERNAME=user
-SPRING_DATASOURCE_PASSWORD=password
-EOF
-                '''
-            }
-        }
-
         stage('Build Jar') {
             steps {
                 sh '''
@@ -36,10 +19,19 @@ EOF
 
         stage('Docker Build & Deploy') {
             steps {
-                sh '''
-                    docker-compose down --remove-orphans || true
-                    docker-compose up -d --build
-                '''
+                withCredentials([
+                    string(credentialsId: 'MYSQL_USER', variable: 'MYSQL_USER'),
+                    string(credentialsId: 'MYSQL_PASSWORD', variable: 'MYSQL_PASSWORD'),
+                    string(credentialsId: 'MYSQL_DATABASE', variable: 'MYSQL_DATABASE'),
+                    string(credentialsId: 'SPRING_DATASOURCE_URL', variable: 'SPRING_DATASOURCE_URL'),
+                    string(credentialsId: 'SPRING_DATASOURCE_USERNAME', variable: 'SPRING_DATASOURCE_USERNAME'),
+                    string(credentialsId: 'SPRING_DATASOURCE_PASSWORD', variable: 'SPRING_DATASOURCE_PASSWORD')
+                ]) {
+                    sh '''
+                        docker-compose down
+                        docker-compose up -d --build
+                    '''
+                }
             }
         }
     }
