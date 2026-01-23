@@ -307,7 +307,7 @@ curl -X POST http://localhost:8080/api/posts \
   -d '{
     "userId": 3,
     "title": "Docker 성공",
-    "content": "드디어 컨테이너에서 동작"
+    "content": "컨테이너에서 동작"
   }'
 ```
 
