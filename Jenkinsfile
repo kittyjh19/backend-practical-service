@@ -10,15 +10,18 @@ pipeline {
 
         stage('Build Jar') {
             steps {
-                sh './gradlew clean bootJar'
+                sh '''
+                    chmod +x gradlew
+                    ./gradlew clean bootJar
+                '''
             }
         }
 
         stage('Docker Build & Deploy') {
             steps {
                 sh '''
-                docker compose down
-                docker compose up -d --build
+                    docker compose down
+                    docker compose up -d --build
                 '''
             }
         }
