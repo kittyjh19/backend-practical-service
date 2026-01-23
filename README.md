@@ -24,6 +24,7 @@ REST API 스펙 정리, ERD 및 시퀀스 다이어그램 작성,
 - **Phase 3**: 기능 확장 및 테스트 강화 
 - **Phase 4**: CI/CD 구축 및 Docker 기반 배포 환경 구성
 - **Phase 5**: Kubernetes 기반 배포 환경 구성 (예정)
+- **Phase 6**: AWS + Kubernetes 운영 환경 구축 (예정)
 
 ---
 
