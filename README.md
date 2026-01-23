@@ -1,15 +1,17 @@
 # backend-practical-service
 
 > 기존 Spring Boot 백엔드 서비스에 합류한 상황을 가정하여  
-> 구조 분석, 유지보수, 성능 개선, 배포까지 단계적으로 수행하는 실무형 프로젝트
+> 구조 분석, 유지보수, 성능 개선, **CI/CD 구축 및 배포까지 수행한 실무형 프로젝트**
 
 본 프로젝트는 **기존 운영 중인 Spring Boot 기반 REST API 서비스 코드베이스를 대상으로**,  
-신입 백엔드 개발자 관점에서 **서비스 구조를 분석하고 유지보수·개선을 수행한 실무 분석 프로젝트**입니다.
+신입 백엔드 개발자 관점에서  **서비스 구조 분석 → 유지보수/개선 → 배포 자동화(CI/CD)** 까지  
+단계적으로 수행한 실무 분석 프로젝트입니다.
+
 
 신규 서비스를 개발하는 것이 아니라,  
 **기존 코드에 합류한 상황을 가정하여 환경 설정, 코드 구조 분석,  
 REST API 스펙 정리, ERD 및 시퀀스 다이어그램 작성,  
-유지보수 및 성능 개선 작업을 단계적으로 수행**하고 있습니다.
+유지보수 및 성능 개선, 배포 환경 구성**을 직접 수행했습니다.
 
 ---
 
@@ -20,19 +22,20 @@ REST API 스펙 정리, ERD 및 시퀀스 다이어그램 작성,
 - **Phase 1**: 서비스 구조 분석 및 문서화  
 - **Phase 2**: 유지보수 및 성능 개선  
 - **Phase 3**: 기능 확장 및 테스트 강화 
-- **Phase 4**: 배포 및 운영 환경 구성 (예정)
+- **Phase 4**: CI/CD 구축 및 Docker 기반 배포 환경 구성
+- **Phase 5**: Kubernetes 기반 배포 환경 구성 (예정)
 
 ---
 
 ## 📌 프로젝트 개요
 - 기존 백엔드 서비스 코드 클론 및 로컬 개발 환경 구성
 - REST API 구조 및 도메인 흐름 분석
-- **도메인(Entity) 모델 기반 테이블 구조 분석 및 ERD 문서화**
+- 도메인(Entity) 모델 기반 테이블 구조 분석 및 ERD 문서화
 - 주요 API 요청 흐름에 대한 시퀀스 다이어그램 작성
-- 신입 개발자 관점에서의 코드 구조 이해 및 개선 포인트 정리
+- Hibernate SQL 로그 기반 버그 수정 및 성능 개선
+- Jenkins + Docker Compose 기반 CI/CD 파이프라인 구축
+- curl을 통한 배포 환경 API 검증
 
-본 프로젝트는 **기존 백엔드 서비스를 빠르게 이해하고,  
-실제 유지보수 및 개선 작업까지 수행할 수 있는 역량을 기르는 것**에 초점을 맞추고 있습니다.
 
 ---
 
@@ -42,7 +45,10 @@ REST API 스펙 정리, ERD 및 시퀀스 다이어그램 작성,
 - Spring Data JPA
 - MySQL 8.0
 - Gradle (Wrapper)
-- Spring Boot Actuator
+- Gradle (Wrapper)  
+- JUnit 5 / MockMvc  
+- Docker / Docker Compose  
+- Jenkins
 
 ---
 
@@ -69,7 +75,12 @@ backend-practical-service
 │     ├─ repository           # JPA Repository
 │     ├─ domain               # 도메인 모델 (JPA Entity 포함)
 │     └─ dto                  # 요청/응답 DTO
-└─ README.md
+├─ Jenkinsfile                # Jenkins CI/CD 파이프라인 정의
+├─ Dockerfile                 # Spring Boot 애플리케이션 이미지 빌드
+├─ Dockerfile.jenkins         # Jenkins 전용 이미지 (Docker CLI 포함)
+├─ docker-compose.yml         # 애플리케이션 실행 환경 (App + MySQL)
+├─ docker-compose.jenkins.yml # CI/CD 환경 (Jenkins)
+└─ README.md                  # 프로젝트 설명 문서
 ````
 
 ---
@@ -232,16 +243,126 @@ API 레이어의 책임을 검증하기 위해 Controller 테스트를 추가했
 
 ---
 
-## 🚀 Phase 4. 배포 및 운영 환경 구성 (예정)
+## 🚀 Phase 4. 배포 및 운영 환경 구성
+기존 Phase 3까지 로컬 환경에서의 기능 검증을 완료한 이후, 실제 운영 환경을 가정하여 빌드·배포 과정을 자동화하고
+애플리케이션을 컨테이너 기반으로 실행할 수 있도록 환경을 구성했습니다.
 
-* Docker 기반 로컬/운영 환경 구성
-* AWS EC2 + RDS 배포 환경 구축
-* 실행 가능한 JAR 빌드 및 배포 자동화
-* Actuator 기반 헬스 체크 및 모니터링 적용
-* curl을 통한 배포 환경 API 검증
+### 🔄 CI/CD 파이프라인 개요
+
+```text
+GitHub (push)
+   ↓
+Jenkins Pipeline
+   ↓
+Gradle bootJar
+   ↓
+Docker Image Build
+   ↓
+Docker Compose
+   ├─ MySQL
+   └─ Spring Boot App
+```
+
+* Jenkins는 Docker 컨테이너로 실행
+* Jenkinsfile 기반 Declarative Pipeline 구성
+* `.env` 파일은 **Jenkins 실행 시점에 동적 생성**
+* GitHub에는 민감 정보 미커밋 (.gitignore)
 
 ---
 
+### 🧾 Jenkinsfile 요약
+
+* Checkout
+* Gradle JAR 빌드
+* Docker Compose 기반 배포
+* 배포 성공/실패 로그 분리
+
+---
+
+### 🐳 Docker Compose 역할 분리
+
+* `docker-compose.yml`
+  → 애플리케이션 실행용 (Spring Boot + MySQL)
+
+* `docker-compose.jenkins.yml`
+  → CI/CD 전용 (Jenkins + Docker CLI 포함)
+
+---
+
+## 🔐 환경 변수 및 보안 전략
+
+| 항목                  | 방식                        |
+| ------------------- | ------------------------- |
+| DB 계정               | Jenkins 실행 시 `.env` 동적 생성 |
+| GitHub              | `.env` 미커밋                |
+| Jenkins Credentials | 추후 적용 예정                  |
+
+---
+
+## 🔎 배포 환경 API 검증 (curl)
+
+```bash
+curl -X POST http://localhost:8080/api/posts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 3,
+    "title": "Docker 성공",
+    "content": "드디어 컨테이너에서 동작"
+  }'
+```
+
+### 응답 예시
+
+```json
+{
+  "id": 1,
+  "authorId": 3,
+  "title": "Docker 성공",
+  "content": "컨테이너에서 동작",
+  "likeCount": 0,
+  "createdAt": "2026-01-23T17:25:57",
+  "updatedAt": "2026-01-23T17:25:57"
+}
+```
+
+---
+
+## 🔧 트러블슈팅 경험
+
+### 1. Gradle JAVA_COMPILER 오류 (WSL)
+
+* 원인: JDK/JRE 인식 문제
+* 해결: 로컬 설정과 CI 설정 분리
+
+### 2. Jenkins에서 docker 명령어 인식 실패
+
+* 원인: Jenkins 컨테이너에 Docker CLI 미설치
+* 해결: Jenkins 전용 Dockerfile로 Docker CLI 포함
+
+### 3. docker compose / docker-compose 혼용 문제
+
+* Jenkins 환경에서는 `docker-compose`로 통일
+
+### 4. 컨테이너 이름 충돌
+
+* 기존 수동 실행 컨테이너와 충돌
+* `docker-compose down` 선행으로 해결
+
+### 5. `.env 파일 없음` 오류
+
+* Jenkinsfile에서 `.env` 동적 생성으로 해결
+
+
+---
+
+## ☸️ Phase 5. Kubernetes 기반 배포 환경 구성 (예정)
+기존 Phase 4에서 Docker Compose 기반 배포를 완료한 이후,
+컨테이너 오케스트레이션 환경으로 확장하기 위해 Kubernetes 기반 배포 환경을 구성할 예정입니다.
+
+* Docker Compose → Kubernetes 전환
+* Jenkins + Kubernetes 연계 배포
+
+---
 ## 🧠 배운 점
 
 ### Phase 1
@@ -263,6 +384,13 @@ API 레이어의 책임을 검증하기 위해 Controller 테스트를 추가했
 * 테스트 실패 로그를 기반으로 원인을 추적하는 디버깅 경험
 * **“테스트를 통과시키는 코드”보다 “의도를 드러내는 테스트”의 중요성** 을 체감
 
+### Phase 4
+* Jenkins를 Docker 컨테이너로 구성하며 CI 서버 또한 하나의 애플리케이션이라는 관점을 학습
+* Jenkinsfile 기반 Declarative Pipeline으로 빌드–배포 흐름을 코드로 관리
+* Docker Compose를 활용해 애플리케이션 실행 환경과 CI/CD 환경을 분리 설계
+* `.env` 파일을 Jenkins 실행 시점에 동적으로 생성하여 민감 정보와 Git 저장소를 분리
+* Docker CLI 의존성, 컨테이너 이름/네트워크 충돌 등 실제 배포 오류를 로그 기반으로 해결
+* curl을 통해 배포된 컨테이너 환경에서 API 정상 동작을 직접 검증
 ---
 
 ## 📎 참고 사항
