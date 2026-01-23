@@ -1,22 +1,24 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/techblog?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
-    username: user
-    password: password
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
         show_sql: true
     open-in-view: false
     defer-datasource-initialization: true
-    generate-ddl: true
+
   sql:
     init:
-      mode: always
+      mode: never
 
 logging:
   level:
