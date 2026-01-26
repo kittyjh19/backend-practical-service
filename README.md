@@ -75,6 +75,9 @@ backend-practical-service
 │     ├─ repository           # JPA Repository
 │     ├─ domain               # 도메인 모델 (JPA Entity 포함)
 │     └─ dto                  # 요청/응답 DTO
+├─ k8s/
+│  ├─ app.yaml                # Spring Boot 애플리케이션을 Kubernetes에 배포하는 설정
+|  └─ mysql.yaml              # MySQL을 Kubernetes에서 실행하는 설정 (Deployment + Service)
 ├─ Jenkinsfile                # Jenkins CI/CD 파이프라인 정의
 ├─ Dockerfile                 # Spring Boot 애플리케이션 이미지 빌드
 ├─ Dockerfile.jenkins         # Jenkins 전용 이미지 (Docker CLI 포함)
