@@ -24,6 +24,7 @@ REST API 스펙 정리, ERD 및 시퀀스 다이어그램 작성,
 - **Phase 3**: 기능 확장 및 테스트 강화 
 - **Phase 4**: CI/CD 구축 및 Docker 기반 배포 환경 구성
 - **Phase 5**: Kubernetes 기반 배포 환경 구성 (예정)
+- **Phase 6**: AWS + Kubernetes 운영 환경 구축 (예정)
 
 ---
 
@@ -44,8 +45,7 @@ REST API 스펙 정리, ERD 및 시퀀스 다이어그램 작성,
 - Spring Boot 3.2.x
 - Spring Data JPA
 - MySQL 8.0
-- Gradle (Wrapper)
-- Gradle (Wrapper)  
+- Gradle (Wrapper) 
 - JUnit 5 / MockMvc  
 - Docker / Docker Compose  
 - Jenkins
@@ -265,8 +265,8 @@ Docker Compose
 
 * Jenkins는 Docker 컨테이너로 실행
 * Jenkinsfile 기반 Declarative Pipeline 구성
-* `.env` 파일은 **Jenkins 실행 시점에 동적 생성**
-* GitHub에는 민감 정보 미커밋 (.gitignore)
+* 민감 정보(DB 계정, Datasource 정보)는 Jenkins Credentials로 관리
+* Jenkins Pipeline 실행 시 환경 변수로 주입하여 Git 저장소와 실행 환경을 분리
 
 ---
 
@@ -291,11 +291,12 @@ Docker Compose
 
 ## 🔐 환경 변수 및 보안 전략
 
-| 항목                  | 방식                        |
-| ------------------- | ------------------------- |
-| DB 계정               | Jenkins 실행 시 `.env` 동적 생성 |
-| GitHub              | `.env` 미커밋                |
-| Jenkins Credentials | 추후 적용 예정                  |
+| 항목                  | 방식                                              |
+| ------------------- | ------------------------------------------------- |
+| DB 계정 / 비밀번호      | Jenkins Credentials로 관리                         |
+| 애플리케이션 환경 변수   | Jenkins Pipeline 실행 시 환경 변수로 주입           |
+| GitHub              | 민감 정보 미커밋 (Credentials 완전 분리)            |
+
 
 ---
 
@@ -348,9 +349,10 @@ curl -X POST http://localhost:8080/api/posts \
 * 기존 수동 실행 컨테이너와 충돌
 * `docker-compose down` 선행으로 해결
 
-### 5. `.env 파일 없음` 오류
+### 5. 환경 변수 주입 방식 전환
 
-* Jenkinsfile에서 `.env` 동적 생성으로 해결
+* 원인: 로컬 `.env` 파일 의존으로 CI 환경에서 변수 누락
+* 해결: Jenkins Credentials를 통해 환경 변수를 주입하도록 구조 개선
 
 
 ---
@@ -382,15 +384,16 @@ curl -X POST http://localhost:8080/api/posts \
 * 비즈니스 로직은 Service 테스트에서 검증
 * API 요청/응답 계약은 Controller 테스트에서 검증
 * 테스트 실패 로그를 기반으로 원인을 추적하는 디버깅 경험
-* **“테스트를 통과시키는 코드”보다 “의도를 드러내는 테스트”의 중요성** 을 체감
+* “테스트를 통과시키는 코드”보다 “의도를 드러내는 테스트”의 중요성을 체감
 
 ### Phase 4
 * Jenkins를 Docker 컨테이너로 구성하며 CI 서버 또한 하나의 애플리케이션이라는 관점을 학습
 * Jenkinsfile 기반 Declarative Pipeline으로 빌드–배포 흐름을 코드로 관리
 * Docker Compose를 활용해 애플리케이션 실행 환경과 CI/CD 환경을 분리 설계
-* `.env` 파일을 Jenkins 실행 시점에 동적으로 생성하여 민감 정보와 Git 저장소를 분리
 * Docker CLI 의존성, 컨테이너 이름/네트워크 충돌 등 실제 배포 오류를 로그 기반으로 해결
 * curl을 통해 배포된 컨테이너 환경에서 API 정상 동작을 직접 검증
+* Jenkins Credentials를 활용해 민감 정보를 안전하게 관리하며 Git 저장소와 실행 환경을 완전히 분리
+
 ---
 
 ## 📎 참고 사항
