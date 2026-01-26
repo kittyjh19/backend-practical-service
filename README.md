@@ -335,7 +335,7 @@ curl -X POST http://localhost:8080/api/posts \
 
 ---
 
-## 🔧 트러블슈팅 경험
+## 🔧 트러블슈팅 경험 (CI/CD)
 
 ### 1. Gradle JAVA_COMPILER 오류 (WSL)
 
@@ -406,7 +406,7 @@ EC2 (AWS)
           └─ techblog DB
 ```
 
-* AWS EC2 단일 노드 환경에서 **k3s 기반 Kubernetes 클러스터 구성**
+* AWS EC2 단일 노드 환경에서 **k3s 기반 Kubernetes 클러스터 구성** (Control-plane + Worker 동일 노드)
 * Spring Boot 애플리케이션과 MySQL을 각각 Deployment로 분리
 * Service를 통해 Pod 간 통신 및 외부 접근 구성
 * NodePort를 통해 외부에서 API 접근 가능하도록 설정
@@ -484,7 +484,7 @@ curl -X POST http://<EC2_PUBLIC_IP>:30080/api/posts \
 
 ---
 
-## 🔧 트러블슈팅 경험
+## 🚨 운영 환경 트러블슈팅
 
 ### 1. ImagePullBackOff 발생
 
@@ -583,4 +583,8 @@ curl -X POST http://<EC2_PUBLIC_IP>:30080/api/posts \
 * 본 프로젝트는 **실무 환경에서의 서비스 분석 및 유지보수 경험을 학습하기 위한 목적**으로 진행되었습니다.
 * 서비스 코드의 원형은 학습용으로 제공된 기존 코드베이스를 기반으로 합니다.
 * 분석, 문서화 및 개선 작업은 개인적으로 수행했습니다.
+
+> 이 프로젝트는 기능 구현보다  
+> **기존 서비스를 이해하고, 문제를 분석하고, 운영 환경에서 복구할 수 있는 역량**을 증명하는 데 목적이 있었습니다.
+
 
