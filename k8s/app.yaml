@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techblog-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: techblog-app
+  template:
+    metadata:
+      labels:
+        app: techblog-app
+    spec:
+      containers:
+        - name: techblog-app
+          image: techblog-app:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/techblog?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_USER
+
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: techblog-app
+spec:
+  type: NodePort
+  selector:
+    app: techblog-app
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30080
