@@ -357,12 +357,17 @@ curl -X POST http://localhost:8080/api/posts \
 
 ---
 
-## ☸️ Phase 5. Kubernetes 기반 배포 환경 구성 (예정)
+## ☸️ Phase 5. Kubernetes 기반 배포 환경 구성
 기존 Phase 4에서 Docker Compose 기반 배포를 완료한 이후,
-컨테이너 오케스트레이션 환경으로 확장하기 위해 Kubernetes 기반 배포 환경을 구성할 예정입니다.
+컨테이너 오케스트레이션 환경으로 확장하기 위해 Minikube 기반 Kubernetes 배포 환경을 구성했습니다.
+
+Spring Boot 애플리케이션과 MySQL을 각각 Pod로 배포하고, Service를 통해 애플리케이션을 외부에 노출하여
+실제 API 요청이 정상 처리되는 것을 확인했습니다.
 
 * Docker Compose → Kubernetes 전환
-* Jenkins + Kubernetes 연계 배포
+* Deployment / Service 기반 애플리케이션 배포
+* Pod 간 통신 및 데이터베이스 연동 검증
+* `minikube service`를 통한 외부 접근 및 curl API 테스트
 
 ---
 ## 🧠 배운 점
@@ -393,6 +398,12 @@ curl -X POST http://localhost:8080/api/posts \
 * Docker CLI 의존성, 컨테이너 이름/네트워크 충돌 등 실제 배포 오류를 로그 기반으로 해결
 * curl을 통해 배포된 컨테이너 환경에서 API 정상 동작을 직접 검증
 * Jenkins Credentials를 활용해 민감 정보를 안전하게 관리하며 Git 저장소와 실행 환경을 완전히 분리
+
+### Phase 5
+* Kubernetes 환경에서는 애플리케이션과 데이터가 각각 Pod로 분리되어 운영됨을 이해
+* Service를 통해 Pod가 동적으로 교체되어도 안정적으로 통신할 수 있음을 경험
+* 컨테이너 로그(`kubectl logs`) 기반으로 애플리케이션 오류 원인을 추적하는 실무 디버깅 흐름 체득
+* 초기 데이터 상태(user 존재 여부)에 따라 API 오류가 발생할 수 있음을 확인하며 운영 관점의 데이터 관리 중요성 체감
 
 ---
 
