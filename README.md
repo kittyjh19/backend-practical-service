@@ -1,7 +1,7 @@
 # backend-practical-service
 
 > 기존 Spring Boot 백엔드 서비스에 합류한 상황을 가정하여  
-> 구조 분석, 유지보수, 성능 개선, **CI/CD 구축 및 배포까지 수행한 실무형 프로젝트**
+> **분석·유지보수·테스트·CI/CD·Kubernetes 운영 및 장애 대응까지 수행한 실무형 백엔드 프로젝트**
 
 본 프로젝트는 **기존 운영 중인 Spring Boot 기반 REST API 서비스 코드베이스를 대상으로**,  
 신입 백엔드 개발자 관점에서  **서비스 구조 분석 → 유지보수/개선 → 배포 자동화(CI/CD)** 까지  
@@ -23,8 +23,8 @@ REST API 스펙 정리, ERD 및 시퀀스 다이어그램 작성,
 - **Phase 2**: 유지보수 및 성능 개선  
 - **Phase 3**: 기능 확장 및 테스트 강화 
 - **Phase 4**: CI/CD 구축 및 Docker 기반 배포 환경 구성
-- **Phase 5**: Kubernetes 기반 배포 환경 구성 (예정)
-- **Phase 6**: AWS + Kubernetes 운영 환경 구축 (예정)
+- **Phase 5**: Kubernetes 기반 배포 환경 구성
+- **Phase 6**: AWS + Kubernetes 운영 환경 구축
 
 ---
 
@@ -49,6 +49,10 @@ REST API 스펙 정리, ERD 및 시퀀스 다이어그램 작성,
 - JUnit 5 / MockMvc  
 - Docker / Docker Compose  
 - Jenkins
+- Kubernetes (Minikube, k3s)
+- AWS EC2
+
+  
 
 ---
 
@@ -373,6 +377,165 @@ Spring Boot 애플리케이션과 MySQL을 각각 Pod로 배포하고, Service�
 * `minikube service`를 통한 외부 접근 및 curl API 테스트
 
 ---
+
+## ☁️ Phase 6. AWS + Kubernetes 운영 환경 구축
+
+> Phase 6에서는 Kubernetes 자체보다  
+> **리소스 제약, 이미지 관리, 초기 데이터 상태 등 운영 환경에서 발생하는 실제 문제를 해결하는 경험**에 집중했습니다.
+
+Phase 5에서 로컬 Kubernetes(Minikube) 환경에서의 배포를 완료한 이후,
+**실제 운영 환경을 가정하여 AWS EC2 상에서 Kubernetes 클러스터를 구성하고 서비스를 배포**했습니다.
+
+단순한 배포 성공이 아닌,
+**운영 환경에서 발생할 수 있는 오류를 직접 겪고 해결하는 경험**을 목표로 진행했습니다.
+
+---
+
+### 🏗️ 아키텍처 개요
+
+```text
+[Client]
+   ↓
+NodePort (30080)
+   ↓
+EC2 (AWS)
+ └─ k3s (Kubernetes)
+     ├─ Spring Boot App Pod
+     │    └─ REST API (/api/posts)
+     └─ MySQL Pod
+          └─ techblog DB
+```
+
+* AWS EC2 단일 노드 환경에서 **k3s 기반 Kubernetes 클러스터 구성**
+* Spring Boot 애플리케이션과 MySQL을 각각 Deployment로 분리
+* Service를 통해 Pod 간 통신 및 외부 접근 구성
+* NodePort를 통해 외부에서 API 접근 가능하도록 설정
+* 단일 노드 환경에서 발생할 수 있는 리소스 한계 및 장애를 직접 경험하며 인스턴스 스펙 조정과 서비스 재배포를 통해 복구
+
+
+---
+
+### ☸️ k3s 선택 이유
+
+운영 환경에서 Kubernetes를 직접 다뤄보기 위해
+**경량 Kubernetes 배포판인 k3s**를 선택했습니다.
+
+**선택 이유**
+
+* 단일 EC2 인스턴스에서도 안정적으로 실행 가능
+* 설치 및 운영이 간단하여 학습 목적에 적합
+* Kubernetes의 핵심 개념(Deployment, Service, Pod, Secret)을 그대로 경험 가능
+
+> “프로덕션용 완전한 멀티 노드 클러스터”보다는
+> **Kubernetes 운영 흐름을 이해하는 데 초점**을 둔 선택이었습니다.
+
+---
+
+### 🖥️ EC2 인스턴스 타입 선택 (t3.small)
+
+| 항목       | 선택 이유                                    |
+| -------- | ---------------------------------------- |
+| t3.small | 2 vCPU / 2GB RAM                         |
+| 이유       | k3s + MySQL + Spring Boot 동시 실행 시 안정성 확보 |
+
+* t2.micro 환경에서는 컨테이너 재시작, 이미지 Pull 지연 등의 문제가 발생
+* k3s control-plane + DB + App 컨테이너를 동시에 실행하기 위해 메모리 여유가 필요
+* **비용 대비 안정성**을 고려해 t3.small 선택
+
+---
+
+## 🔐 환경 변수 및 보안 구성
+
+* DB 계정 정보는 Kubernetes Secret으로 관리
+* 애플리케이션 환경 변수는 Deployment에 주입
+* Git 저장소에는 민감 정보 미포함
+
+```yaml
+env:
+  - name: SPRING_DATASOURCE_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: mysql-secret
+        key: MYSQL_USER
+```
+
+---
+
+## 🧪 운영 환경 API 검증
+
+```bash
+curl -X POST http://<EC2_PUBLIC_IP>:30080/api/posts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "title": "Phase 6 성공",
+    "content": "AWS + k3s + MySQL + Spring Boot"
+  }'
+```
+
+```json
+{
+  "id": 1,
+  "author": "juhee",
+  "title": "Phase 6 성공",
+  "content": "AWS + k3s + MySQL + Spring Boot"
+}
+```
+
+---
+
+## 🔧 트러블슈팅 경험
+
+### 1. ImagePullBackOff 발생
+
+**원인**
+
+* 로컬 이미지 이름(`techblog-app:latest`)을 그대로 사용
+* Docker Hub에 존재하지 않는 이미지 참조
+
+**해결**
+
+* Docker Hub에 이미지 push
+* Deployment image를 `<dockerhub-id>/techblog-app:latest`로 수정
+
+---
+
+### 2. DB 연결 실패 (Communications link failure)
+
+**원인**
+
+* Kubernetes Secret 미생성 상태에서 MySQL / App Pod 기동
+* DB 인증 정보 누락
+
+**해결**
+
+* `kubectl create secret generic`으로 Secret 생성
+* MySQL / App Deployment 재배포
+
+---
+
+### 3. API 500 에러 (User not found)
+
+**원인**
+
+* 게시글 생성 시 참조하는 User 데이터가 DB에 존재하지 않음
+
+**해결**
+
+* 초기 User 데이터 직접 삽입
+* 운영 환경에서 **초기 데이터 관리의 중요성** 인지
+
+---
+
+## 📌 운영 환경 정리
+
+* 본 Phase 6 환경은 **학습 및 검증 목적**으로 구성
+* 배포 및 API 정상 동작 확인 후 EC2 인스턴스 중지
+
+> Phase 6는 Kubernetes를 잘 쓰는 것이 아니라,  
+> **운영 환경에서 발생하는 문제를 분석하고 복구하는 경험**에 초점을 둔 단계였습니다.
+
+---
 ## 🧠 배운 점
 
 ### Phase 1
@@ -408,6 +571,11 @@ Spring Boot 애플리케이션과 MySQL을 각각 Pod로 배포하고, Service�
 * 컨테이너 로그(`kubectl logs`) 기반으로 애플리케이션 오류 원인을 추적하는 실무 디버깅 흐름 체득
 * 초기 데이터 상태(user 존재 여부)에 따라 API 오류가 발생할 수 있음을 확인하며 운영 관점의 데이터 관리 중요성 체감
 
+### Phase 6
+* Kubernetes 환경에서는 “애플리케이션 오류”와 “인프라 오류”를 구분하는 것이 중요
+* Pod 상태(CrashLoopBackOff, ImagePullBackOff)와 로그를 함께 분석해야 정확한 원인 파악 가능
+* 운영 환경에서는 초기 데이터 상태도 장애 원인이 될 수 있음
+* 배포 성공보다 중요한 것은 문제가 발생했을 때 복구할 수 있는 능력
 ---
 
 ## 📎 참고 사항
